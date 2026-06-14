@@ -1,1 +1,543 @@
-....
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Banco do Pedrinho</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
+
+  :root{
+    --bg:#070f1c;--app:#0a1526;--surface:#0e2036;
+    --line:rgba(216,180,80,.16);--line-soft:rgba(255,255,255,.06);
+    --gold:#d8b450;--gold-2:#f3da8e;--gold-deep:#a9842c;
+    --text:#eef4fb;--muted:#8198b4;--muted-2:#5f7390;
+    --good:#46d2a0;--red:#e07070;--shadow:0 18px 40px -18px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%,#112744 0%,transparent 60%),var(--bg);
+    font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+    color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:18px 12px 0;
+  }
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  .phone{
+    width:100%;max-width:430px;background:var(--app);border-radius:30px;overflow:hidden;
+    position:relative;box-shadow:var(--shadow),0 0 0 1px rgba(255,255,255,.04);
+    display:flex;flex-direction:column;min-height:calc(100vh - 18px);
+  }
+
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .seal{
+    width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+    background:linear-gradient(150deg,var(--gold-2),var(--gold) 45%,var(--gold-deep));
+    color:#1a1304;font-family:'Sora',sans-serif;font-weight:800;font-size:18px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 6px 14px -6px rgba(216,180,80,.7);
+  }
+  .brand b{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;letter-spacing:.2px}
+  .brand small{display:block;color:var(--gold);font-size:10px;letter-spacing:2.5px;font-weight:700;text-transform:uppercase;margin-top:-2px}
+  .ic-btn{
+    width:38px;height:38px;border-radius:12px;border:1px solid var(--line-soft);
+    background:var(--surface);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:.18s;
+  }
+  .ic-btn:hover{color:var(--gold);border-color:var(--line)}
+
+  .scroll{flex:1;overflow-y:auto;padding:6px 16px 96px;scrollbar-width:thin}
+  .scroll::-webkit-scrollbar{width:6px}
+  .scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:9px}
+
+  /* card */
+  .card{
+    position:relative;border-radius:22px;padding:22px;overflow:hidden;
+    background:radial-gradient(120% 120% at 0% 0%,#173357 0%,transparent 55%),
+      linear-gradient(135deg,#0f2742 0%,#0a1a2e 55%,#0e2440 100%);
+    border:1px solid var(--line);box-shadow:0 24px 48px -24px rgba(0,0,0,.9);
+  }
+  .card::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(115deg,transparent 38%,rgba(243,218,142,.15) 50%,transparent 62%);
+    transform:translateX(-120%);
+  }
+  .card.shine::after{animation:sweep 1.1s ease}
+  @keyframes sweep{to{transform:translateX(120%)}}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start}
+  .card-top .lbl{font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:700;text-transform:uppercase}
+  .chipcard{
+    width:42px;height:30px;border-radius:7px;
+    background:linear-gradient(150deg,var(--gold-2),var(--gold) 50%,var(--gold-deep));
+    position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+  }
+  .chipcard::before,.chipcard::after{
+    content:"";position:absolute;inset:0;border-radius:7px;
+    background-image:linear-gradient(rgba(0,0,0,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.18) 1px,transparent 1px);
+    background-size:100% 9px,13px 100%;opacity:.5;
+  }
+  .saldo-lbl{margin-top:20px;color:var(--muted);font-size:12px;letter-spacing:.3px}
+  .saldo-val{font-family:'Sora',sans-serif;font-weight:800;font-size:38px;letter-spacing:-.5px;margin-top:4px;line-height:1}
+  .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:22px}
+  .card-foot small{color:var(--muted-2);font-size:11px}
+  .card-foot .pan{color:var(--muted);font-size:12px;letter-spacing:2px;font-weight:600}
+
+  /* agenda */
+  .agenda{display:flex;flex-direction:column;gap:10px}
+  .ag{
+    display:flex;align-items:center;gap:14px;
+    background:var(--surface);border:1px solid var(--line-soft);border-radius:16px;padding:14px 15px;
+    animation:rise .4s backwards;
+  }
+  .ag.next{border-color:rgba(216,180,80,.3);background:linear-gradient(120deg,#0e2036,#132840)}
+  .ag-date{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:46px;height:46px;border-radius:12px;flex:0 0 auto;
+    background:linear-gradient(160deg,#13294180,#0e2036);border:1px solid var(--line);
+  }
+  .ag-date .dm{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;line-height:1;color:var(--gold-2)}
+  .ag-date .mo{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:700;margin-top:2px}
+  .ag .mid{flex:1;min-width:0}
+  .ag .nm{font-weight:700;font-size:14px}
+  .ag .sb{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .ag .rt{text-align:right;flex:0 0 auto}
+  .ag .amt{font-family:'Sora',sans-serif;font-weight:700;font-size:15px}
+  .ag .badge{font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:3px;color:var(--gold-2)}
+
+  .sec{margin:22px 2px 11px;display:flex;align-items:center;justify-content:space-between}
+  .sec h2{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin:0;letter-spacing:.2px}
+
+  /* list rows */
+  .list{display:flex;flex-direction:column;gap:8px}
+  .row{
+    display:flex;align-items:center;gap:12px;background:var(--surface);
+    border:1px solid var(--line-soft);border-radius:15px;padding:12px 13px;animation:rise .4s backwards;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
+  .ava{
+    width:42px;height:42px;border-radius:12px;flex:0 0 auto;display:grid;place-items:center;
+    font-size:20px;background:linear-gradient(160deg,#13294180,#0e2036);border:1px solid var(--line-soft);
+  }
+  .ava.cr{background:linear-gradient(160deg,rgba(70,210,160,.12),rgba(19,41,65,.5));border-color:rgba(70,210,160,.2)}
+  .ava.db{background:linear-gradient(160deg,rgba(224,112,112,.12),rgba(19,41,65,.5));border-color:rgba(224,112,112,.2)}
+  .ava.jr{background:linear-gradient(160deg,rgba(216,180,80,.12),rgba(19,41,65,.5));border-color:rgba(216,180,80,.2)}
+  .row .mid{flex:1;min-width:0}
+  .row .nm{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .sb{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .row .rt{text-align:right;flex:0 0 auto}
+  .row .amt{font-family:'Sora',sans-serif;font-weight:700;font-size:14px}
+  .row .amt.cr{color:var(--good)}.row .amt.db{color:var(--red)}.row .amt.jr{color:var(--gold-2)}
+  .row .sub-tag{font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-top:3px}
+  .sub-tag.cr{color:var(--good)}.sub-tag.db{color:var(--red)}.sub-tag.jr{color:var(--gold-2)}
+  .prog{height:5px;border-radius:6px;background:#0c1e33;margin-top:9px;overflow:hidden}
+  .prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--good),#7ee9c2);transition:width .7s cubic-bezier(.2,.7,.2,1)}
+  .del-btn{
+    width:28px;height:28px;border-radius:8px;border:none;background:rgba(224,112,112,.12);
+    color:var(--red);cursor:pointer;display:grid;place-items:center;flex:0 0 auto;transition:.15s;
+  }
+  .del-btn:hover{background:rgba(224,112,112,.22)}
+
+  /* lançamento form */
+  .lanc-form{
+    background:var(--surface);border:1px solid var(--line-soft);border-radius:16px;padding:15px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .lanc-form label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;display:block}
+  .lanc-form input,.lanc-form select{
+    width:100%;background:#0a1a2e;border:1px solid var(--line-soft);border-radius:11px;
+    color:var(--text);padding:10px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;
+    font-weight:600;outline:none;transition:.15s;
+  }
+  .lanc-form input:focus,.lanc-form select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(216,180,80,.1)}
+  .lanc-form select option{background:#0e2036}
+  .tipo-row{display:flex;gap:8px}
+  .tipo-btn{
+    flex:1;padding:9px;border-radius:11px;border:1px solid var(--line-soft);background:#0a1a2e;
+    color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;
+    cursor:pointer;transition:.15s;text-align:center;
+  }
+  .tipo-btn.on.cr{background:rgba(70,210,160,.12);color:var(--good);border-color:rgba(70,210,160,.3)}
+  .tipo-btn.on.db{background:rgba(224,112,112,.12);color:var(--red);border-color:rgba(224,112,112,.3)}
+
+  /* pagar juros */
+  .juros-card{
+    background:linear-gradient(120deg,#0e2036,#132840);
+    border:1px solid rgba(216,180,80,.3);border-radius:18px;padding:20px;text-align:center;
+    animation:rise .4s backwards;
+  }
+  .juros-card .j-lbl{font-size:11px;color:var(--muted);letter-spacing:.4px;margin-bottom:4px}
+  .juros-card .j-val{font-family:'Sora',sans-serif;font-weight:800;font-size:32px;color:var(--gold-2)}
+  .juros-card .j-base{font-size:11.5px;color:var(--muted);margin-top:6px}
+  .juros-log{display:flex;flex-direction:column;gap:8px;margin-top:0}
+
+  .btn{
+    width:100%;margin-top:12px;border:none;border-radius:12px;padding:12px;cursor:pointer;
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;
+    background:linear-gradient(150deg,var(--gold-2),var(--gold) 55%,var(--gold-deep));color:#1a1304;transition:.15s;
+  }
+  .btn:hover{filter:brightness(1.05)}.btn:active{transform:scale(.985)}
+  .btn.sec-btn{background:var(--surface);color:var(--muted);border:1px solid var(--line-soft);margin-top:8px}
+
+  .note{font-size:12px;color:var(--muted);line-height:1.5;background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:13px 15px;margin-top:10px}
+  .rule{background:var(--surface);border:1px solid var(--line-soft);border-radius:16px;padding:16px;display:flex;gap:13px;animation:rise .4s backwards}
+  .rule .n{
+    width:30px;height:30px;flex:0 0 auto;border-radius:9px;display:grid;place-items:center;
+    font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:var(--gold-2);
+    background:#0d2138;border:1px solid var(--line);
+  }
+  .rule p{margin:0;font-size:13px;line-height:1.55;color:#cdd9e6}
+  .rule b{color:var(--gold-2)}
+  .empty{text-align:center;color:var(--muted-2);font-size:13px;padding:20px 0}
+
+  nav.tabs{
+    position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;
+    padding:9px 10px calc(9px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(10,21,38,.4),var(--app) 40%);
+    backdrop-filter:blur(12px);border-top:1px solid var(--line-soft);
+  }
+  nav.tabs button{
+    background:none;border:none;color:var(--muted-2);font-family:inherit;font-size:10.5px;font-weight:600;
+    display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:5px 12px;border-radius:12px;transition:.16s;
+  }
+  nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9}
+  nav.tabs button.on{color:var(--gold-2)}
+  .view{animation:fade .28s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}}
+  .toast{
+    position:absolute;left:50%;bottom:92px;transform:translate(-50%,20px);
+    background:#0f2742;border:1px solid var(--line);color:var(--text);
+    padding:11px 17px;border-radius:13px;font-size:13px;font-weight:600;
+    box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.3s;z-index:5;white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}.toast b{color:var(--gold-2)}
+  .sheet-bg{position:absolute;inset:0;background:rgba(3,8,16,.6);opacity:0;pointer-events:none;transition:.25s;z-index:8}
+  .sheet-bg.show{opacity:1;pointer-events:auto}
+  .sheet{
+    position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);
+    border-radius:22px 22px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));
+    transform:translateY(100%);transition:.28s cubic-bezier(.2,.7,.2,1);z-index:9;
+  }
+  .sheet.show{transform:translateY(0)}
+  .sheet h3{font-family:'Sora',sans-serif;margin:0 0 4px;font-size:16px}
+  .sheet p{color:var(--muted);font-size:12.5px;margin:0 0 16px;line-height:1.5}
+  .grip{width:40px;height:4px;border-radius:3px;background:#2a3f5a;margin:0 auto 16px}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="phone">
+  <header class="top">
+    <div class="brand">
+      <div class="seal">P</div>
+      <div><b>Banco do Pedrinho</b><small>Conta Crediário</small></div>
+    </div>
+    <button class="ic-btn" id="gear" aria-label="Ajustes">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.36.22.8.33 1.24.33H21a2 2 0 0 1 0 4h-.09c-.44 0-.88.12-1.24.34z"/></svg>
+    </button>
+  </header>
+  <div class="scroll" id="scroll"></div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="home" class="on">
+      <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Início
+    </button>
+    <button data-tab="extrato">
+      <svg viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Extrato
+    </button>
+    <button data-tab="pagar">
+      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>Juros
+    </button>
+    <button data-tab="regras">
+      <svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/><path d="M8 13h8M8 17h6"/></svg>Regras
+    </button>
+  </nav>
+  <div class="toast" id="toast"></div>
+  <div class="sheet-bg" id="sheetbg"></div>
+  <div class="sheet" id="sheet">
+    <div class="grip"></div>
+    <h3>Ajustes da conta</h3>
+    <p>Zera todos os lançamentos e juros registrados, voltando ao saldo original de R$ 19.574,53.</p>
+    <button class="btn" style="background:rgba(224,112,112,.15);color:var(--red);border:1px solid rgba(224,112,112,.3)" id="resetBtn">Resetar todos os registros</button>
+  </div>
+</div>
+
+<script>
+const fmt   = n => n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const fmtD  = d => new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+const uid   = ()=> Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const reduce= matchMedia('(prefers-reduced-motion: reduce)').matches;
+const today = new Date().toLocaleDateString('pt-BR');
+const KEY_JUROS = 'bp:juros';
+const KEY_LANC  = 'bp:lanc';
+
+const PARC = [
+  {id:'p1',nome:'Pneus',           em:'🛞', parc:9,  vp:145.11},
+  {id:'p2',nome:'Plano de saúde',  em:'🏥', parc:17, vp:100.00},
+  {id:'p3',nome:'Celular',         em:'📱', parc:16, vp:70.50 },
+  {id:'p4',nome:'Itens geral',     em:'🛍️', parc:2,  vp:68.02 },
+  {id:'p5',nome:'Transferência',   em:'💸', parc:6,  vp:115.40},
+  {id:'p6',nome:'Grana emprestada',em:'🤝', parc:10, vp:75.00 },
+];
+const FIX = [
+  {id:'f1', nome:'Consignado',                      em:'🏦', valor:2568.11},
+  {id:'f2', nome:'Mármore',                         em:'🪨', valor:680.00 },
+  {id:'f3', nome:'Máquina',                         em:'⚙️', valor:2235.99},
+  {id:'f4', nome:'Pintura e mudança',               em:'🎨', valor:1400.00},
+  {id:'f5', nome:'Tatuagem',                        em:'🖋️', valor:680.00 },
+  {id:'f6', nome:'Desconto consignado',             em:'💵', valor:920.00 },
+  {id:'f7', nome:'Advogado divórcio',               em:'⚖️', valor:500.00 },
+  {id:'f8', nome:'Caixa de som / Multimídia Focus', em:'🔊', valor:4500.00},
+  {id:'f9', nome:'Grana emprestada',                em:'🤝', valor:200.00 },
+  {id:'f10',nome:'Imposto de renda',                em:'🧾', valor:178.00 },
+];
+
+// estado
+let jurosLog = [];   // [{id,data,valor}] → pagamentos de juros realizados (não afetam o capital)
+let lancamentos=[];  // [{id,nome,tipo:'cr'|'db',valor,data}]
+
+// lançamentos fixos — entram sempre, independente de reset
+const SEED_LANC = [
+  {id:'seed_roupeiro_grana', nome:'Parcelas · Roupeiro e Grana emprestada', em:'🛋️', tipo:'db', valor:750.00, data:'2026-06-14T12:00:00.000Z'},
+];
+
+async function load(){
+  try{ const r=await window.storage.get(KEY_JUROS); if(r?.value) jurosLog=JSON.parse(r.value); }catch(e){jurosLog=[];}
+  try{ const r=await window.storage.get(KEY_LANC);  if(r?.value) lancamentos=JSON.parse(r.value); }catch(e){lancamentos=[];}
+  // garante que os seeds estejam sempre presentes
+  SEED_LANC.forEach(s=>{ if(!lancamentos.find(l=>l.id===s.id)) lancamentos.push(s); });
+}
+async function saveJuros(){ try{ await window.storage.set(KEY_JUROS,JSON.stringify(jurosLog)); }catch(e){} }
+async function saveLanc(){  try{ await window.storage.set(KEY_LANC, JSON.stringify(lancamentos)); }catch(e){} }
+
+// saldo base fixo
+const BASE = 19574.53;
+
+// lançamentos: cr = crédito (reduz dívida), db = débito (aumenta dívida)
+// juros PAGOS não alteram o capital — são custo mensal separado
+const lancSaldo = () => lancamentos.reduce((s,l)=> l.tipo==='cr' ? s-l.valor : s+l.valor, 0);
+const saldoGeral= () => BASE + lancSaldo();
+const juros1pct = () => saldoGeral()*0.01;
+
+/* ---- datas ---- */
+function proximoDia20(){
+  const n=new Date(), d=new Date(n.getFullYear(),n.getMonth(),20);
+  return n<d ? d : new Date(n.getFullYear(),n.getMonth()+1,20);
+}
+function proximoDia3112(){
+  const n=new Date(), d=new Date(n.getFullYear(),11,31);
+  return n<d ? d : new Date(n.getFullYear()+1,11,31);
+}
+function diasAte(d){ const a=new Date(); a.setHours(0,0,0,0); d=new Date(d); d.setHours(0,0,0,0); return Math.round((d-a)/864e5); }
+function diaMes(d){ return { dia:d.toLocaleDateString('pt-BR',{day:'2-digit'}), mes:d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','') }; }
+
+/* ---- views ---- */
+const scroll = document.getElementById('scroll');
+
+function viewHome(){
+  const sg=saldoGeral(), d20=proximoDia20(), d31=proximoDia3112();
+  const dd20=diasAte(d20), dd31=diasAte(d31), dm20=diaMes(d20), dm31=diaMes(d31);
+  const badge=n => n===0?'hoje':n===1?'amanhã':'em '+n+' dias';
+  scroll.innerHTML=`
+   <div class="view">
+    <div class="card" id="card">
+      <div class="card-top"><span class="lbl">Banco do Pedrinho</span><div class="chipcard"></div></div>
+      <div class="saldo-lbl">Saldo devedor total</div>
+      <div class="saldo-val num" id="bignum">${fmt(0)}</div>
+      <div class="card-foot"><small>Atualizado em ${today}</small><span class="pan">•••• 1990</span></div>
+    </div>
+    <div class="sec"><h2>Próximos vencimentos</h2></div>
+    <div class="agenda">
+      <div class="ag next">
+        <div class="ag-date"><div class="dm">${dm20.dia}</div><div class="mo">${dm20.mes}</div></div>
+        <div class="mid"><div class="nm">Juros do mês</div><div class="sb">1% sobre o capital devedor</div></div>
+        <div class="rt"><div class="amt num">${fmt(juros1pct())}</div><div class="badge">${badge(dd20)}</div></div>
+      </div>
+      <div class="ag">
+        <div class="ag-date"><div class="dm">${dm31.dia}</div><div class="mo">${dm31.mes}</div></div>
+        <div class="mid"><div class="nm">Abatimento 13º salário</div><div class="sb">Desconto no capital · ${d31.getFullYear()}</div></div>
+        <div class="rt"><div class="amt num">R$ 1.000,00</div><div class="badge">${badge(dd31)}</div></div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px">Juros de <b style="color:var(--gold-2)">${fmt(juros1pct())}</b> incidem dia 20 de cada mês sobre o saldo atual de <b style="color:var(--gold-2)">${fmt(sg)}</b>.</div>
+   </div>`;
+  requestAnimationFrame(()=>document.getElementById('card')?.classList.add('shine'));
+  countUp(document.getElementById('bignum'), sg);
+}
+
+function viewExtrato(){
+  const all = [
+    ...PARC.map(i=>({em:i.em, nome:i.nome, sb:`${i.parc}x de ${fmt(i.vp)}`, valor:i.parc*i.vp, tipo:'db', id:i.id, fixo:true})),
+    ...FIX.map(i=>({em:i.em, nome:i.nome, sb:'Valor fixo', valor:i.valor, tipo:'db', id:i.id, fixo:true})),
+    ...jurosLog.map(j=>({em:'💸', nome:'Juros pagos via Pix', sb:'Pago em '+fmtD(j.data), valor:j.valor, tipo:'jr', id:j.id, fixo:false})),
+    ...lancamentos.map(l=>({em:l.em||(l.tipo==='cr'?'💚':'🔴'), nome:l.nome, sb:(l.tipo==='cr'?'Crédito':'Débito')+' · '+fmtD(l.data), valor:l.valor, tipo:l.tipo, id:l.id, fixo:false, seed:!!SEED_LANC.find(s=>s.id===l.id)})),
+  ];
+  scroll.innerHTML=`
+   <div class="view">
+    <div class="sec" style="margin-top:8px"><h2>Extrato</h2></div>
+    <div class="list">
+      ${all.map((it,k)=>`
+        <div class="row" style="animation-delay:${k*22}ms">
+          <div class="ava ${it.tipo==='jr'?'jr':it.tipo==='cr'?'cr':'db'}">${it.em}</div>
+          <div class="mid"><div class="nm">${it.nome}</div><div class="sb">${it.sb}</div></div>
+          <div class="rt">
+            <div class="amt num ${it.tipo==='cr'||it.tipo==='jr'?'cr':''}">
+              ${it.tipo==='cr'||it.tipo==='jr'?'− ':'+ '}${fmt(it.valor)}
+            </div>
+            ${!it.fixo?`<div class="sub-tag ${it.tipo==='jr'?'cr':it.tipo}">${it.tipo==='cr'?'crédito':it.tipo==='jr'?'juros pagos':'débito'}</div>`:''}
+          </div>
+          ${(!it.fixo && !it.seed)?`<button class="del-btn" data-del="${it.id}" data-tipo="${it.tipo==='jr'?'jr':'lanc'}" title="Remover">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>`:''}
+        </div>`).join('')}
+      ${all.length===0?`<div class="empty">Nenhum lançamento ainda.</div>`:''}
+    </div>
+
+    <div class="sec"><h2>Novo lançamento</h2></div>
+    <div class="lanc-form">
+      <div>
+        <label>Descrição</label>
+        <input type="text" id="lNome" placeholder="Ex: Pagamento parcial, taxa, etc." maxlength="50">
+      </div>
+      <div>
+        <label>Valor (R$)</label>
+        <input type="number" id="lValor" inputmode="decimal" placeholder="0,00" min="0.01">
+      </div>
+      <div>
+        <label>Tipo</label>
+        <div class="tipo-row">
+          <button class="tipo-btn on cr" id="tipoCr">💚 Crédito (abate dívida)</button>
+          <button class="tipo-btn db" id="tipoDb">🔴 Débito (adiciona)</button>
+        </div>
+      </div>
+      <button class="btn" id="addLanc">Lançar</button>
+    </div>
+    <div class="note" style="margin-top:14px">Saldo total: <b style="color:var(--gold-2)">${fmt(saldoGeral())}</b></div>
+   </div>`;
+
+  // tipo toggle
+  let tipoSel='cr';
+  document.getElementById('tipoCr').onclick=()=>{tipoSel='cr';document.getElementById('tipoCr').classList.add('on');document.getElementById('tipoDb').classList.remove('on');};
+  document.getElementById('tipoDb').onclick=()=>{tipoSel='db';document.getElementById('tipoDb').classList.add('on');document.getElementById('tipoCr').classList.remove('on');};
+
+  document.getElementById('addLanc').onclick=async()=>{
+    const nome=(document.getElementById('lNome').value||'').trim();
+    const val=parseFloat((document.getElementById('lValor').value||'').replace(',','.'));
+    if(!nome){toast('Informe uma descrição');return;}
+    if(!val||val<=0){toast('Informe um valor válido');return;}
+    lancamentos.push({id:uid(),nome,tipo:tipoSel,valor:val,data:new Date().toISOString()});
+    await saveLanc();
+    toast(tipoSel==='cr'?`Crédito de <b>${fmt(val)}</b> lançado`:`Débito de <b>${fmt(val)}</b> lançado`);
+    viewExtrato();
+  };
+
+  scroll.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    const id=b.dataset.del, tipo=b.dataset.tipo;
+    if(tipo==='jr') jurosLog=jurosLog.filter(j=>j.id!==id), await saveJuros();
+    else lancamentos=lancamentos.filter(l=>l.id!==id), await saveLanc();
+    toast('Lançamento removido'); viewExtrato();
+  });
+}
+
+function viewPagar(){
+  const j=juros1pct(), sg=saldoGeral();
+  const mesAtual=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  const totalPago=jurosLog.reduce((s,x)=>s+x.valor,0);
+  scroll.innerHTML=`
+   <div class="view">
+    <div class="sec" style="margin-top:8px"><h2>Juros do mês · Pix</h2></div>
+    <div class="juros-card">
+      <div class="j-lbl">1% sobre o saldo devedor atual</div>
+      <div class="j-val num">${fmt(j)}</div>
+      <div class="j-base">Base: ${fmt(sg)} · ${mesAtual}</div>
+
+      <button class="btn" id="copiarPix" style="margin-top:16px;background:linear-gradient(150deg,#2a9d6e,var(--good))">
+        📋 Copiar valor para Pix
+      </button>
+      <button class="btn" id="registrarPgto" style="margin-top:8px">
+        ✅ Registrar pagamento realizado
+      </button>
+    </div>
+
+    <div class="sec"><h2>Histórico de pagamentos</h2>
+      ${totalPago>0?`<span style="font-size:11px;color:var(--good);font-weight:700">Total: ${fmt(totalPago)}</span>`:''}
+    </div>
+    <div class="juros-log list">
+      ${jurosLog.length===0?`<div class="empty">Nenhum pagamento registrado ainda.</div>`:
+        [...jurosLog].reverse().map((x,k)=>`
+        <div class="row" style="animation-delay:${k*30}ms">
+          <div class="ava cr">💸</div>
+          <div class="mid"><div class="nm">Juros pagos via Pix</div><div class="sb">Pago em ${fmtD(x.data)}</div></div>
+          <div class="rt"><div class="amt num cr">− ${fmt(x.valor)}</div></div>
+          <button class="del-btn" data-del="${x.id}" title="Remover">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>`).join('')}
+    </div>
+   </div>`;
+
+  document.getElementById('copiarPix').onclick=()=>{
+    const val=juros1pct().toFixed(2);
+    navigator.clipboard?.writeText(val).then(()=>toast(`<b>${fmt(juros1pct())}</b> copiado para o Pix`))
+      .catch(()=>toast(`Valor: <b>${fmt(juros1pct())}</b>`));
+  };
+  document.getElementById('registrarPgto').onclick=async()=>{
+    const val=juros1pct();
+    jurosLog.push({id:uid(),data:new Date().toISOString(),valor:val});
+    await saveJuros();
+    toast(`Pagamento de <b>${fmt(val)}</b> registrado`); viewPagar();
+  };
+  scroll.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+    jurosLog=jurosLog.filter(x=>x.id!==b.dataset.del); await saveJuros();
+    toast('Registro removido'); viewPagar();
+  });
+}
+
+function viewRegras(){
+  scroll.innerHTML=`
+   <div class="view">
+    <div class="sec" style="margin-top:8px"><h2>Regras de abatimento</h2></div>
+    <div class="list">
+      <div class="rule">
+        <div class="n">1</div>
+        <p>Abater <b>R$ 1.000,00</b> do capital referente ao <b>décimo terceiro salário</b> (todo dia 31/12). Após finalizar as parcelas do carro, usar o valor da parcela para continuar abatendo do capital.</p>
+      </div>
+    </div>
+    <div class="sec"><h2>Condições da conta</h2></div>
+    <div class="note">Juros de <b style="color:var(--gold-2)">1% ao mês</b>, lançados manualmente dia 20 de cada mês · Saldo inicial de <b style="color:var(--gold-2)">R$ 19.574,53</b> · Base: 27/05/2026.</div>
+   </div>`;
+}
+
+/* ---- utilitários ---- */
+function countUp(el,to){
+  if(!el) return;
+  if(reduce){el.textContent=fmt(to);return;}
+  const dur=900,t0=performance.now();
+  (function step(t){
+    const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-p,3);
+    el.textContent=fmt(to*e);
+    if(p<1) requestAnimationFrame(step); else el.textContent=fmt(to);
+  })(t0);
+}
+let tT;
+function toast(html){
+  const el=document.getElementById('toast');
+  el.innerHTML=html; el.classList.add('show');
+  clearTimeout(tT); tT=setTimeout(()=>el.classList.remove('show'),2300);
+}
+
+/* ---- nav ---- */
+const views={home:viewHome,extrato:viewExtrato,pagar:viewPagar,regras:viewRegras};
+function go(tab){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  views[tab](); scroll.scrollTop=0;
+}
+document.getElementById('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(b) go(b.dataset.tab);
+});
+
+/* ---- sheet ---- */
+const sheet=document.getElementById('sheet'), sbg=document.getElementById('sheetbg');
+document.getElementById('gear').onclick=()=>{sheet.classList.add('show');sbg.classList.add('show')};
+sbg.onclick=()=>{sheet.classList.remove('show');sbg.classList.remove('show')};
+document.getElementById('resetBtn').onclick=async()=>{
+  jurosLog=[]; lancamentos=[...SEED_LANC]; await saveJuros(); await saveLanc();
+  sheet.classList.remove('show'); sbg.classList.remove('show');
+  toast('Todos os registros foram zerados'); go('home');
+};
+
+(async()=>{ await load(); go('home'); })();
+</script>
